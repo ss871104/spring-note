@@ -5,10 +5,12 @@
 * [IoC 介面 (BeanFactory)](#ioc-介面-beanfactory)
 * [IoC 操作Bean管理](#ioc-操作bean管理)
     * [xml組態檔實作](#ioc-操作bean管理-基於-xml)
+    * [FactoryBean (工廠Bean - 自定義Bean)](#ioc-操作bean管理---工廠bean-factorybean)
+    * [Bean Scope (Bean的作用域)](#ioc-操作bean管理---bean的作用域-bean-scope)
+    * [Bean Lifecycle (Bean的生命週期)](#ioc-操作bean管理---bean的生命週期-bean-lifecycle)
+    * [自動配置](#ioc-操作bean管理---自動配置)
+    * [配置外部屬性資料](#ioc-操作bean管理---配置外部屬性資料)
     * [annotation標籤實作](#ioc-操作bean管理-基於註解-anotation)
-    * [FactoryBean](#ioc-操作bean管理---factorybean)
-    * [Bean Scope](#ioc-操作bean管理---bean的作用域-bean-scope)
-    * [Bean Lifecycle](#ioc-操作bean管理---bean的生命週期-bean-lifecycle)
 
 ## **IoC 底層管理**
 ### **什麼是控制反轉？**
@@ -83,6 +85,8 @@ public class TestSpring {
 * [FactoryBean (工廠Bean - 自定義Bean)](#ioc-操作bean管理---工廠bean-factorybean)
 * [Bean Scope (Bean的作用域)](#ioc-操作bean管理---bean的作用域-bean-scope)
 * [Bean Lifecycle (Bean的生命週期)](#ioc-操作bean管理---bean的生命週期-bean-lifecycle)
+* [自動配置](#ioc-操作bean管理---自動配置)
+* [配置外部屬性資料](#ioc-操作bean管理---配置外部屬性資料)
 
 ---
 
@@ -366,11 +370,6 @@ public class UserBean {
 
 ---
 
-### **IoC 操作Bean管理 (基於註解 Anotation)**
-
-
----
-
 ### **IoC 操作Bean管理 - 工廠Bean FactoryBean**
 Spring 有兩種 bean：
 
@@ -432,6 +431,7 @@ singleton和prototype的區別
 ---
 
 ### **IoC 操作Bean管理 - Bean的生命週期 Bean Lifecycle**
+![Bean的生命週期](/spring-framework/bean-lifecycle.png)<br>
 * Bean的生命週期指的是從建立物件到物件銷毀的過程
 * Bean的生命週期流程
     1. 通過建構子建立bean的物件(無參數建構子)
@@ -442,7 +442,9 @@ singleton和prototype的區別
 
 **程式碼範例**
 ```xml
-
+<bean id="orders" class="com.ss871104.spring.bean.Orders" init-method="initMethod" destroy-method="destroyMethod">
+    <property name="oname" value="手機"></property>
+</bean>
 ```
 ```java
 public class Orders() {
@@ -457,6 +459,289 @@ public class Orders() {
     public void setOname(String oname) {
         this.oname = oname;
         System.out.println("第二步，呼叫setter方法設定屬性值");
+    }
+    // 初始化方法
+    public void initMethod() {
+        System.out.println("第三步，執行初始化的方法");
+    }
+    // 銷毀方法
+    public void destroyMethod() {
+        System.out.println("第五步，執行銷毀的方法");
+    }
+}
+```
+```java
+@Test
+public void testBean() {
+    // ApplicationContext context = 
+    //     new ClassPathXmlApplicationContext("bean.xml");
+    ClassPathXmlApplicationContext context = 
+        new ClassPathXmlApplicationContext("bean.xml");
+    Orders orders = context.getBean("orders", Order.class);
+    System.out.println("第四步，獲取創建的bean的物件");
+    System.out.println(orders);
+
+    // 銷毀方法
+    context.close();
+}
+```
+---
+
+#### **BeanPostProcessor 介面**
+* 在bean初始化前後執行方法
+* 實作BeanPostProcessor介面會將 bean 的生命週期 +2步
+* Bean的生命週期流程 implements BeanPostProcessor
+    1. 通過建構子建立bean的物件(無參數建構子)
+    2. 為bean的屬性(property)設定值和對其他bean的引用(呼叫setter方法)
+    3. **把bean的物件傳給BeanPostProcessor的方法 (postProcessBeforeInitialization 方法)**
+    4. 呼叫bean的初始化方法(需要配置初始化的方法)
+    5. **把bean的物件傳給BeanPostProcessor的方法 (postProcessAfterInitialization 方法)**
+    6. bean可以使用了(物件獲取到了)
+    7. 當容器關閉時，呼叫bean的銷毀方法(需要配置銷毀的方法)
+
+**程式碼範例**
+```xml
+<!--配置BeanPostProcessor-->
+<bean id="myBeanPost" class="com.ss871104.spring.bean.MyBeanPost">
+</bean>
+```
+```java
+public class MyBeanPost implements BeanPostProcessor {
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("初始化之前的方法");
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("初始化之後的方法");
+        return bean;
+    }
+}
+```
+
+---
+
+### **IoC 操作Bean管理 - 自動配置**
+#### 什麼是自動配置
+* 根據指定配置規則(屬性名稱或屬性類型)，Spring 自動將相應的屬性值進行注入
+* 通常都是用標籤annotation去完成自動配置
+
+自動配置過程
+```xml
+<!--bean標籤屬性autowire，自動配置
+    autowire屬性常用的兩個值：
+        byName根據屬性名稱注入，注入的bean的id值合類別屬性名稱一樣
+        byType根據屬性類別注入-->
+<bean id="emp" class="com.ss871104.spring.autowire.Emp" autowire="byName"></bean>
+<bean id="dept" class="com.ss871104.spring.autowire.Dept"></bean>
+```
+
+---
+
+### **IoC 操作Bean管理 - 配置外部屬性資料**
+以配置資料庫為例：
+
+**直接配置連線池**
+```xml
+<!--內部配置連線池-->
+<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+    p:driverClassName="com.mysql.jdbc.Driver"
+    p:url="jdbc:mysql://localhost:3306/testdb"
+    p:username="root"
+    p:password="password"
+/>
+```
+
+**引入外部文件**
+```properties
+jdbc.driverClassName=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/testdb
+jdbc.username=root
+jdbc.password=password
+```
+```xml
+<!--引入外部屬性文件(以properties檔為例)-->
+<context:property-placeholder location="classpath:jdbc.properties"/>
+
+<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+    p:driverClassName="${jdbc.driverClassName}"
+    p:url="${jdbc.url}"
+    p:username="${jdbc.username}"
+    p:password="${jdbc.password}"
+/>
+```
+
+### **IoC 操作Bean管理 (基於註解 Anotation)**
+**什麼是註解？**
+* 註解是程式碼的特殊標記，格式：@Annotation(property="???")
+* 註解可作用在類別、方法、屬性上
+* 使用註解的目的：簡化xml配置
+
+**Bean管理中建立物件的註解**
+* @Component
+* @Service - 商業邏輯層
+* @Controller - 外部連結
+* @Repository - Dao層
+
+以上註解功能是一樣的，都可以用來建立bean物件
+
+程式碼範例：<br>
+開啟組件掃描
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--開啟組件掃描 (掃描整包)-->
+    <context:component-scan base-package="com.ss871104"></context:component-scan>
+
+    <!--自己配置掃描的檔案，只掃描有@Controller的檔案-->
+    <context:component-scan base-package="com.ss871104" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.streotype.Controller">
+    </context:component-scan>
+
+    <!--自己配置掃描的檔案，只不掃描有@Controller的檔案其他都掃描-->
+    <context:component-scan base-package="com.ss871104">
+        <context:exclude-filter type="annotation" expression="org.springframework.streotype.Controller">
+    </context:component-scan>
+
+</beans>
+```
+```java
+// 註解理的value屬性可省略不寫，預設是首字母小寫
+// UserService -> userService
+@Component(value = "userService") // <bean id="userService " class="">
+public class UserService {
+
+    public void add() {
+        System.out.println("service add");
+    }
+}
+```
+
+**注入屬性 (註解方式)**
+* @Autowired<br>
+    根據屬性類別進行資動裝配
+* @Qualifier<br>
+    根據屬性名稱進行注入 (要和＠Autowired一起使用)
+* @Resource<br>
+    可以根據類別注入也可以根據名稱注入，是javax.annotation套件底下的註解
+* @Value<br>
+    注入普通類別屬性
+
+程式碼範例
+* @Autowired
+```java
+@Service
+public class UserService {
+    // 定義dao類別屬性
+    // 不需要添加setter方法
+    // 添加注入屬性註解
+    @Autowired
+    private UserDao userDao;
+
+    public void add() {
+        System.out.println("service add");
+        userDao.add();
+    }
+}
+```
+* @Qualifier
+```java
+ @Service
+public class UserService {
+    // 定義dao類別屬性
+    // 不需要添加setter方法
+    // 添加注入屬性註解
+    @Autowired
+    // 當有多個實作類別時可用
+    @Qualifier(value = "userDaoImpl1")
+    private UserDao userDao;
+
+    public void add() {
+        System.out.println("service add");
+        userDao.add();
+    }
+}
+```
+* @Resource
+```java
+@Service
+public class UserService {
+    // 兩種皆可
+    @Resource // 類別進行注入
+    @Resoucre(value = "userDaoImpl1") // 名稱進行注入
+    private UserDao userDao;
+
+    public void add() {
+        System.out.println("service add");
+        userDao.add();
+    }
+}
+```
+* @Value
+```java
+@Service
+public class UserService {
+    
+    @Value(value = "abc")
+    private String name;
+
+    @Autowire
+    private UserDao userDao;
+
+    public void add() {
+        System.out.println("service add" + name);
+        userDao.add();
+    }
+
+}
+```
+
+**Java 類別組態配置**<br>
+由POJO 類別 + 特殊的annotation組成，可替代xml寫法
+* @Configuration<br>
+    定義在Java類別上，告訴Spring架構這個類別是專門做組態設定的特殊類別
+* @Bean<br>
+    定義在方法上，告訴Spring架構這是一個需要使用Spring IoC技術控管的Bean元件
+* @ComponentScan<br>
+    定義在Java類別上，告訴Spring架構需要搜尋的套件名稱
+
+程式碼範例：
+```java
+// 作為配置類別，替代xml組態檔
+@Configuration
+// 需要Spring搜尋的套件名稱
+@ComponentScan(basePackage={"com.ss871104"})
+public class SpringConfig {
+
+    @Bean
+    public UserDao userDao() {
+        return new UserDaoImpl();
+    }
+}
+```
+測試需改成以下形式
+```java
+public class TestSpring {
+
+    @Test
+    public void testAdd() {
+        // 載入spring Java類別組態檔
+        ApplicationContext context = 
+            new AnnotationConfigApplicationContext("SpringConfig.class");
+
+        // 獲取配置建立的物件
+        UserDaoImpl userDao = context.getBean("userDaoImpl", UserDaoImpl.class);
+
+        userDao.add();
     }
 }
 ```
