@@ -1,4 +1,4 @@
-# **IoC Container 控制反轉容器**
+# **IoC & Spring 組態配置**
 
 ## **Index 目錄**
 * [IoC 底層原理](#ioc-底層管理)
@@ -12,6 +12,8 @@
         * [配置外部屬性資料](#ioc-操作bean管理---配置外部屬性資料)
     * [Annotation 組態實作](#annotation-組態方式實作)
     * [Java 類別組態實作](#java-類別組態方式實作)
+
+---
 
 ## **IoC 底層管理**
 ### **什麼是控制反轉？**
@@ -58,6 +60,8 @@ class UserFactory {
 }
 ```
 
+---
+
 ## **Spring 的 IoC 介面 - BeanFactory**
 ### **實現控制反轉的兩大介面**
 1. BeanFactory: IoC Container的基本實作，是Spring內部的使用介面，不提供開發人員使用。
@@ -85,6 +89,8 @@ public class TestSpring {
     }
 }
 ```
+
+---
 
 ## **Spring組態設定的方式**
 
@@ -584,7 +590,7 @@ jdbc.username=root
 jdbc.password=password
 ```
 ```xml
-<!--引入外部屬性文件(以properties檔為例)-->
+<!--引入外部文件(以properties檔為例)-->
 <context:property-placeholder location="classpath:jdbc.properties"/>
 
 <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
@@ -594,6 +600,8 @@ jdbc.password=password
     p:password="${jdbc.password}"
 />
 ```
+
+---
 
 ### **Annotation 組態方式實作**
 **什麼是annotation？**
@@ -782,6 +790,8 @@ public class DemoBean() {
     }
 }
 ```
+
+---
 
 ### **Java 類別組態方式實作**<br>
 由POJO 類別 + 特殊的annotation組成，可替代xml寫法
