@@ -4,6 +4,8 @@
 * [DataSource](#datasource)
 * [JdbcTemplate](#jdbctemplate)
 * [對ORM框架的支援(Hibernate/JPA)](#對orm框架的支援hibernatejpa)
+* [資料庫事務操作(Transaction)](#資料庫事務操作transaction)
+* [Java組態設定範例](#java組態設定範例)
 
 ---
 
@@ -267,15 +269,13 @@ Hibernate的物件與關聯表格的映射文件之位置與名稱，則指定�
 ---
 
 ### **Spring對Transaction的支援**
-* OR-Mapping的架構很多(JDBC, Hibernate, JPA, JDO, JTA)，管理的transation的機制也不同
-* Spring提供transaction管理機制讓程式設計師可以使用相同方式管理不同OR-Mapping架構的transaction
+OR-Mapping的架構很多(JDBC, Hibernate, JPA, JDO, JTA)，管理的transation的機制也不同。因此Spring提供transaction管理機制讓程式設計師可以使用相同方式管理不同OR-Mapping架構的transaction。
 
-#### **Spring Transaction Management**
 Spring的transaction管理可分為兩種：
 * 程式設計式(Programming transaction demarcation)：適用於只有少量交易的情況，使用TransactionTemplate與PlatformTransaction Manager撰寫程式呼叫commit()、rollback()管理交易 (限制大，開發時不常使用)
 * 宣告式(Declarative transaction demarcation)：適用於大量交易，使用xml或是annotation方式宣告transaction管理規則
 
-**Spring宣告式transaction管理機制**
+#### **Spring宣告式transaction管理機制**
 * Spring根據宣告在Service, Dao程式(通常為Service)插入transaction管理程式碼：企業邏輯程式與transaction管理程式相互分離
 * Spring依賴AOP功能支援宣告式transaction管理機制，Spring AOP功能作用在方法，所以宣告式transaction管理機制作用在方法
 * 設定transaction的相關transaction參數目的在描述transaction應用到各個方法的策略
@@ -318,18 +318,30 @@ public class UserService {
 }
 ```
 
-**@Transactional的重要屬性**
+#### **@Transactional的重要屬性**
 * transactionManager: transaction使用的PlatformTransactionManager的bean名稱
 * value: transaction使用的PlatformTransactionManager的bean名稱
 * readOnly: 唯讀提示，預設值false
 * timeout: 逾時區間(單位:second)，預設值-1(底層資料庫的預設transaction timeout period)
 * propagation: 傳遞行為，預設值Propagation.REQUIRED
+* isolation: 隔離層級，預設值Isolation.DEFAULT(資料庫隔離設定)
 * rollbackFor: 造成rollback的exception型別
 * rollbackForClassName: 造成rollback的exception類別全名
 * noRollbackFor: 不rollback的exception型別
 * noRollbackForClassName: 不rollback的exception類別全名
 
-#### **傳播行為（Propagation behavior）**
+---
+
+## **資料庫事務操作(Transaction)**
+資料庫事務(transaction)是訪問並可能操作各種資料項的一個資料庫操作序列，這些操作要麼全部執行,要麼全部不執行，是一個不可分割的工作單位。事務由事務開始與事務結束之間執行的全部資料庫操作組成。
+
+### **事務的ACID原則**
+* 原子性(Atomicity): 表示多個步驟中不能只發生其中一個動作，要馬全部成功，要馬全部失敗
+* 一致性(Consistency): 針對一個事務操作前與操作後的狀態一致，例如雙方交易前和交易後的錢都不能小於 0，且雙方錢的總和不能改變，若是無法遵守，交易將會失敗
+* 隔離性(Isolation): 事務的執行不受其他事務的干擾，且不能修改到同一個值，事務執行的中間結果對其他事務必須是透明的
+* 永續性(Durability): 對於任意已提交事務，系統必須保證該事務對資料庫的改變不被丟失，即使資料庫出現故障
+
+### **傳播行為（Propagation behavior）**
 傳播行為定義了交易應用於方法上之邊界（Boundaries），它告知何時該開始一個新的交易，或何時交易該被暫停，或者方法是否要在交易中進行。
 
 當客戶端本身不在交易中，而呼叫另一個方法時，該方法可能：
@@ -367,8 +379,13 @@ Spring定義幾個傳播行為，可在TransactionDefinition的API文件說明�
 * 暫停客戶端交易，於非交易環境中執行（NOT_SUPPORTED）
 * 丟出例外（NEVER）
 
-#### **隔離層級（Isolation level）**
+### **隔離層級（Isolation level）**
 隔離性是交易的保證之一，表示交易與交易之間不互相干擾，好像同時間就只有自己的交易存在一樣，隔離性保證的基本方式是在資料庫層面，對資料庫或相關欄位鎖定，在同一時間內只允許一個交易進行更新或讀取。
+
+隔離性可帶來的問題：
+* 髒讀(Dirty read): 一個事務讀取了另外一個事務未提交的資料
+* 不可重複讀(Nonrepeatable read): 一個事務先後讀取同一條記錄，而事務在兩次讀取之間該資料被其它事務所修改，則兩次讀取的資料不同
+* 幻讀(Phantom read): 一個事務按相同的查詢條件重新讀取以前檢索過的資料，卻發現其他事務插入了滿足其查詢條件的新資料
 
 Spring提供了幾種隔離層級設定，同樣的可以在TransactionDefinition的API文件說明上找到相對應的常數與說明:
 
@@ -389,3 +406,46 @@ Spring提供了幾種隔離層級設定，同樣的可以在TransactionDefinitio
 可以設置交易超時期間，計時是從交易開始時，所以這個設置必須搭配傳播行為PROPAGATION_REQUIRED、PROPAGATION_REQUIRES_NEW、PROPAGATION_NESTED來設置。
 
 Retrieved from https://openhome.cc/Gossip/SpringGossip/TransactionAttribute.html
+
+---
+
+## **Java組態設定範例**
+```java
+@Configuration // 組態設定類別
+@ComponentScan(basePackage = "com.ss871104") // 組件掃描
+@EnableTransactionManagement // 啟用事務transaction
+public class SpringConfig {
+
+    // DataSource
+    @Bean
+    public BasicDataSource getBasicDataSource() {
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/TestDb?serverTimezone=Asia/Taipei");
+        dataSource.setUsername("root");
+        dataSource.setPassword("password");
+
+        return dataSource;
+    }
+
+    // JdbcTemplate
+    @Bean
+    public JdbcTemplate getJdbcTemplate(DataSource dataSource) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+        // 連接datasource
+        jdbcTemplate.setDataSource(dataSource);
+
+        return jdbcTemplate;
+    }
+
+    // TransactionManager
+    @Bean
+    public DataSourceTransactionManager getDataSourceTransactionManager() {
+        DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
+        // 連接datasource
+        transactionManager.setDataSource(dataSource);
+
+        return transactionManager;
+    }
+}
+```

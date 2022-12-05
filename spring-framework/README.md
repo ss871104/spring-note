@@ -4,8 +4,7 @@
 * [Intro 簡介](#intro-簡介)
 * [IoC & Spring 組態配置](/spring-framework/IoC.md)
 * [AOP 面向切面](/spring-framework/AOP.md)
-* [Spring對資料庫的支援](/spring-framework/database.md)
-* [JUnit單元測試]()
+* [Spring對資料庫的支援](/spring-framework/spring-database.md)
 
 ## **Intro 簡介**
 
@@ -28,7 +27,7 @@
 ### **Spring Framework Runtime**
  
  ![spring-framework](https://docs.spring.io/spring-framework/docs/4.3.x/spring-framework-reference/htmlsingle/images/spring-overview.png)<br>
- Reference: Spring Framework Reference Documentation
+Retrieved from Spring Framework Reference Documentation
 
 #### **Spring Framework 的各個模組**
 * Core Container: 提供Spring Framework的基礎功能，主要元件是BeanFactory, BeanFactory實作Factory design pattern, 可以管理物件的生成、釋放以及物件的依賴關係
