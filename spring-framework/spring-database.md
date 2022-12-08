@@ -1,22 +1,22 @@
-# **Spring對資料庫的支援**
+# **Spring 對資料庫的支援**
 
 ## **Index 目錄**
 * [DataSource](#datasource)
 * [JdbcTemplate](#jdbctemplate)
-* [對ORM框架的支援(Hibernate/JPA)](#對orm框架的支援hibernatejpa)
+* [對 ORM 框架的支援(Hibernate/JPA)](#對-orm-框架的支援hibernatejpa)
 * [資料庫事務操作(Transaction)](#資料庫事務操作transaction)
-* [Java組態設定範例](#java組態設定範例)
+* [Java 組態設定範例](#java組態設定範例)
 
 ---
 
 ## **DataSource**
-### **JNDI DataSource主要功能**
-* 隱藏資料庫連線資訊：資料庫連線資訊設定在Server上，應用程式使用JNDI規格規定的方式搜尋連線資訊
-* 隱藏背後的Connection Pool實作：Connection Pool隨著Server而改變，利用DataSource隱藏Connection Pool的實作，讓Web應用程式可以隨時更換Server而不需要改動程式
-* 只能在Web應用程式運作：DataSource需要註冊到JNDI Server，只有Web應用程式內的JDBC程式碼才能使用DataSource(Java Application無法跑DataSource)
+### **JNDI DataSource 主要功能**
+* 隱藏資料庫連線資訊：資料庫連線資訊設定在 Server 上，應用程式使用 JNDI 規格規定的方式搜尋連線資訊
+* 隱藏背後的 Connection Pool 實作：Connection Pool 隨著 Server 而改變，利用 DataSource 隱藏 Connection Pool 的實作，讓 Web 應用程式可以隨時更換 Server 而不需要改動程式
+* 只能在 Web 應用程式運作：DataSource 需要註冊到 JNDI Server，只有 Web 應用程式內的 JDBC 程式碼才能使用 DataSource(Java Application 無法跑 DataSource)
 
-### **Spring對DataSource支援**
-#### Spring透過xml設置DataSource
+### **Spring 對 DataSource 支援**
+#### Spring 透過 xml 設置 DataSource
 程式碼範例：
 ```xml
 <!--內部配置連線池-->
@@ -45,31 +45,31 @@ jdbc.password=password
 />
 ```
 
-#### SpringBoot設置DataSource
-* 如果引入以下兩個套件，SpringBoot會自動設定DataSource
+#### SpringBoot 設置 DataSource
+* 如果引入以下兩個套件，SpringBoot 會自動設定 DataSource
     * spring-boot-starter-jdbc
     * spring-boot-starter-data-jpa
-* 如果有宣告內嵌式資料庫，Spring會自動設定DataSource連接內嵌式資料庫
+* 如果有宣告內嵌式資料庫，Spring 會自動設定 DataSource 連接內嵌式資料庫
     * H2
     * HSQL
     * Derby
-* 如果沒有宣告內嵌式資料庫，Spring會無法自動完成DataSource的自動設定而執行失敗，需修改自動設定機制預設值
-* SpringBoot的DataSource自動設定機制支援三種Connection Pool
+* 如果沒有宣告內嵌式資料庫，Spring 會無法自動完成 DataSource 的自動設定而執行失敗，需修改自動設定機制預設值
+* SpringBoot 的 DataSource 自動設定機制支援三種 Connection Pool
     * HikariCP connection pool(預設值，據說是最快的)
     * Tomcat dbcp connection pool
     * Apache Commons dbcp2
-    * 如果要修改connection pool，需要將HikariCP connection pool函式庫移除，然後宣告其他connection pool函式庫
+    * 如果要修改 connection pool，需要將 HikariCP connection pool 函式庫移除，然後宣告其他connection pool 函式庫
 
-修改DataSource自動設定機制預設值
-* application.properties設定，mysql資料庫為例
+修改 DataSource 自動設定機制預設值
+* application.properties 設定，mysql 資料庫為例
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/TestDB?serverTimezone=Asia/Taipei
 spring.datasource.username=root
 spring.datasource.password=password
 spring.datasource.drive-class-name=com.mysql.cj.jdbc.Driver
 ```
-注：SpringBoot可通過url判斷driver-class-name，所以可省略driver-class-name設定
-* application.yml設定，mysql資料庫為例
+注：SpringBoot 可通過 url 判斷 driver-class-name，所以可省略 driver-class-name設定
+* application.yml設定，mysql 資料庫為例
 ```yml
 spring:
   datasource:
@@ -197,22 +197,22 @@ public Student getStudentNameById(int id) {
 
 ---
 
-## **對ORM框架的支援(Hibernate/JPA)**
+## **對 ORM 框架的支援(Hibernate/JPA)**
 Spring支援Hibernate、Java Persistence API等OR-Mapping技術
 * Hibernate: 存取關聯式資料庫資料的ORM技術
 * JPA: 存取關聯式資料庫資料的規格，底層是實作JPA規格的ORM技術，例如Hibernate, Eclipse Link等
 
-### **Spring對Hibernate技術的支援**
-Spring對Hibernate技術的支援非常多，此處將介紹以下兩種
-* [Spring對SessionFactory的支援](#spring對sessionfactory的支援)
-* [Spring對Transaction的支援](#spring對transaction的支援)
+### **Spring 對 Hibernate 技術的支援**
+Spring 對 Hibernate 技術的支援非常多，此處將介紹以下兩種
+* [Spring 對 SessionFactory 的支援](#spring-對-sessionfactory-的支援)
+* [Spring 對 Transaction 的支援](#spring-對-transaction-的支援)
 
 ---
 
-### **Spring對SessionFactory的支援**
-Spring 可以與Hibernate結合使用，Hibernate的連結、事務管理等是由建立SessionFactory開始的，SessionFactory在 應用程式中通常只需存在一個實例，因而SessionFactory底層的DataSource可以使用Spring的 IoC注入，之後您再注入SessionFactory至相依的物件之中。
+### **Spring 對 SessionFactory 的支援**
+Spring 可以與 Hibernate 結合使用，Hibernate 的連結、事務管理等是由建立 SessionFactory 開始的，SessionFactory 在 應用程式中通常只需存在一個實例，因而 SessionFactory 底層的 DataSource 可以使用 Spring 的 IoC 注入，之後您再注入 SessionFactory 至相依的物件之中。
 
-可將hibernate.cfg.xml組態檔刪除，因為這部份可以由Spring在Bean定義檔中撰寫DataSource設定及依賴注入來取代。<br>
+可將 hibernate.cfg.xml 組態檔刪除，因為這部份可以由 Spring 在 Bean 定義檔中撰寫 DataSource 設定及依賴注入來取代。<br>
 Retrieved from https://openhome.cc/Gossip/SpringGossip/SessionFactoryInjection.html
 ```xml
 <?xml version="1.0" encoding="UTF-8"?> 
@@ -262,28 +262,28 @@ Retrieved from https://openhome.cc/Gossip/SpringGossip/SessionFactoryInjection.h
     </bean> 
 </beans>
 ```
-可以看到使用Spring整合Hibernate的好處，可以直接將DataSource注入至 org.springframework.orm.hibernate3.LocalSessionFactoryBean中，至於Hibernate所 需的相關設定，則可透過LocalSessionFactoryBean的相關屬性來設定，像是設定資料庫名稱、使用者名稱、密碼等， LocalSessionFactoryBean會建立SessionFactory的實例，並在執行依賴注入時將這個實例設定給UserDAO。
+可以看到使用 Spring 整合 Hibernate 的好處，可以直接將 DataSource 注入至 org.springframework.orm.hibernate3.LocalSessionFactoryBean 中，至於 Hibernate 所需的相關設定，則可透過LocalSessionFactoryBean 的相關屬性來設定，像是設定資料庫名稱、使用者名稱、密碼等， LocalSessionFactoryBean 會建立 SessionFactory 的實例，並在執行依賴注入時將這個實例設定給 UserDAO。
 
-Hibernate的物件與關聯表格的映射文件之位置與名稱，則指定於"mappingResources"屬性中，如果自行提供Hibernate本身的設定檔（hibernate.cfg.xml），也可以使用 "configLocation"屬性來指定組態檔的位置，而這邊則使用"hibernateProperties"屬性在Spring的 Bean組態檔中直接指定，可以藉此減少對XML組態檔案的管理。
+Hibernate 的物件與關聯表格的映射文件之位置與名稱，則指定於"mappingResources"屬性中，如果自行提供 Hibernate本身的設定檔（hibernate.cfg.xml），也可以使用 "configLocation"屬性來指定組態檔的位置，而這邊則使用"hibernateProperties"屬性在 Spring 的 Bean 組態檔中直接指定，可以藉此減少對XML組態檔案的管理。
 
 ---
 
-### **Spring對Transaction的支援**
-OR-Mapping的架構很多(JDBC, Hibernate, JPA, JDO, JTA)，管理的transation的機制也不同。因此Spring提供transaction管理機制讓程式設計師可以使用相同方式管理不同OR-Mapping架構的transaction。
+### **Spring 對 Transaction 的支援**
+OR-Mapping 的架構很多(JDBC, Hibernate, JPA, JDO, JTA)，管理的 transation 的機制也不同。因此 Spring 提供 transaction 管理機制讓程式設計師可以使用相同方式管理不同 OR-Mapping 架構的 transaction。
 
-Spring的transaction管理可分為兩種：
-* 程式設計式(Programming transaction demarcation)：適用於只有少量交易的情況，使用TransactionTemplate與PlatformTransaction Manager撰寫程式呼叫commit()、rollback()管理交易 (限制大，開發時不常使用)
-* 宣告式(Declarative transaction demarcation)：適用於大量交易，使用xml或是annotation方式宣告transaction管理規則
+Spring 的 transaction 管理可分為兩種：
+* 程式設計式(Programming transaction demarcation)：適用於只有少量交易的情況，使用 TransactionTemplate 與P latformTransaction Manager 撰寫程式呼叫 commit()、rollback() 管理交易 (限制大，開發時不常使用)
+* 宣告式(Declarative transaction demarcation)：適用於大量交易，使用 xml 或是 annotation 方式宣告 transaction 管理規則
 
-#### **Spring宣告式transaction管理機制**
-* Spring根據宣告在Service, Dao程式(通常為Service)插入transaction管理程式碼：企業邏輯程式與transaction管理程式相互分離
-* Spring依賴AOP功能支援宣告式transaction管理機制，Spring AOP功能作用在方法，所以宣告式transaction管理機制作用在方法
-* 設定transaction的相關transaction參數目的在描述transaction應用到各個方法的策略
-* Spring transaction管理機制由PlatformTransactionManager類別與@Transactional提供
-    * PlatformTransactionManager屬於org.springframework.transaction套件，定義各個OR-Mapping架構的Transaction Manager所必須提供的功能
-    * 使用Spring宣告式Transaction管理機制，必須根據後端OR-Mapping架構在Spring組態設定檔設定PlatformTransactionManager
+#### **Spring 宣告式 transaction 管理機制**
+* Spring 根據宣告在 Service, Dao 程式(通常為Service)插入 transaction 管理程式碼：企業邏輯程式與 transaction 管理程式相互分離
+* Spring 依賴 AOP 功能支援宣告式 transaction 管理機制，Spring AOP 功能作用在方法，所以宣告式 transaction 管理機制作用在方法
+* 設定 transaction 的相關 transaction 參數目的在描述 transaction 應用到各個方法的策略
+* Spring transaction 管理機制由 PlatformTransactionManager 類別與 @Transactional 提供
+    * PlatformTransactionManager 屬於 org.springframework.transaction 套件，定義各個 OR-Mapping 架構的 Transaction Manager 所必須提供的功能
+    * 使用 Spring 宣告式 Transaction 管理機制，必須根據後端 OR-Mapping 架構在 Spring 組態設定檔設定 PlatformTransactionManager
 
-Spring組態配置TransactionManager程式碼範例：
+Spring 組態配置 TransactionManager 程式碼範例：
 ```xml
 <!--DataSource-->
 <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
@@ -318,24 +318,24 @@ public class UserService {
 }
 ```
 
-#### **@Transactional的重要屬性**
-* transactionManager: transaction使用的PlatformTransactionManager的bean名稱
-* value: transaction使用的PlatformTransactionManager的bean名稱
-* readOnly: 唯讀提示，預設值false
-* timeout: 逾時區間(單位:second)，預設值-1(底層資料庫的預設transaction timeout period)
-* propagation: 傳遞行為，預設值Propagation.REQUIRED
-* isolation: 隔離層級，預設值Isolation.DEFAULT(資料庫隔離設定)
-* rollbackFor: 造成rollback的exception型別
-* rollbackForClassName: 造成rollback的exception類別全名
-* noRollbackFor: 不rollback的exception型別
-* noRollbackForClassName: 不rollback的exception類別全名
+#### **@Transactional 的重要屬性**
+* transactionManager: transaction 使用的 PlatformTransactionManager 的 bean 名稱
+* value: transaction 使用的 PlatformTransactionManager 的 bean 名稱
+* readOnly: 唯讀提示，預設值 false
+* timeout: 逾時區間(單位:second)，預設值-1(底層資料庫的預設 transaction timeout period)
+* propagation: 傳遞行為，預設值 Propagation.REQUIRED
+* isolation: 隔離層級，預設值 Isolation.DEFAULT(資料庫隔離設定)
+* rollbackFor: 造成 rollback 的 exception 型別
+* rollbackForClassName: 造成 rollback 的 exception 類別全名
+* noRollbackFor: 不 rollback 的 exception 型別
+* noRollbackForClassName: 不 rollback 的 exception 類別全名
 
 ---
 
 ## **資料庫事務操作(Transaction)**
 資料庫事務(transaction)是訪問並可能操作各種資料項的一個資料庫操作序列，這些操作要麼全部執行,要麼全部不執行，是一個不可分割的工作單位。事務由事務開始與事務結束之間執行的全部資料庫操作組成。
 
-### **事務的ACID原則**
+### **事務的 ACID 原則**
 * 原子性(Atomicity): 表示多個步驟中不能只發生其中一個動作，要馬全部成功，要馬全部失敗
 * 一致性(Consistency): 針對一個事務操作前與操作後的狀態一致，例如雙方交易前和交易後的錢都不能小於 0，且雙方錢的總和不能改變，若是無法遵守，交易將會失敗
 * 隔離性(Isolation): 事務的執行不受其他事務的干擾，且不能修改到同一個值，事務執行的中間結果對其他事務必須是透明的
@@ -355,7 +355,7 @@ public class UserService {
 * 暫停客戶端交易，於非交易環境中執行
 * 丟出例外
 
-Spring定義幾個傳播行為，可在TransactionDefinition的API文件說明上找到相對應的常數與說明:
+Spring 定義幾個傳播行為，可在 TransactionDefinition 的 API 文件說明上找到相對應的常數與說明:
 
 | 交易區間策略 | 說明 |
 | :---------| :-- |
@@ -387,23 +387,23 @@ Spring定義幾個傳播行為，可在TransactionDefinition的API文件說明�
 * 不可重複讀(Nonrepeatable read): 一個事務先後讀取同一條記錄，而事務在兩次讀取之間該資料被其它事務所修改，則兩次讀取的資料不同
 * 幻讀(Phantom read): 一個事務按相同的查詢條件重新讀取以前檢索過的資料，卻發現其他事務插入了滿足其查詢條件的新資料
 
-Spring提供了幾種隔離層級設定，同樣的可以在TransactionDefinition的API文件說明上找到相對應的常數與說明:
+Spring 提供了幾種隔離層級設定，同樣的可以在 TransactionDefinition 的 API 文件說明上找到相對應的常數與說明:
 
 | 隔離層級 | 說明 |
 | :------ | :---|
 | ISOLATION_DEFAULT | 使用底層資料庫預設的隔離層級 |
-| ISOLATION_READ_COMMITTED | 允許交易讀取其它並行的交易已經送出（Commit）的資料欄位，可以防止Dirty read問題 |
-| ISOLATION_READ_UNCOMMITTED | 允許交易讀取其它並行的交易還沒送出的資料，會發生Dirty、Nonrepeatable、Phantom read等問題 |
-| ISOLATION_REPEATABLE_READ | 要求多次讀取的資料必須相同，除非交易本身更新資料，可防止Dirty、Nonrepeatable read問題 |
-| ISOLATION_SERIALIZABLE | 完整的隔離層級，可防止Dirty、Nonrepeatable、Phantom read等問題，會鎖定對應的資料表格，因而有效能問題 |
+| ISOLATION_READ_COMMITTED | 允許交易讀取其它並行的交易已經送出（Commit）的資料欄位，可以防止 Dirty read 問題 |
+| ISOLATION_READ_UNCOMMITTED | 允許交易讀取其它並行的交易還沒送出的資料，會發生 Dirty、Nonrepeatable、Phantom read 等問題 |
+| ISOLATION_REPEATABLE_READ | 要求多次讀取的資料必須相同，除非交易本身更新資料，可防止 Dirty、Nonrepeatable read 問題 |
+| ISOLATION_SERIALIZABLE | 完整的隔離層級，可防止 Dirty、Nonrepeatable、Phantom read 等問題，會鎖定對應的資料表格，因而有效能問題 |
 
 * 唯讀提示（Read-only hints）
-如果交易只進行讀取的動作，則可以利用底層資料庫在唯讀操 作時的一些最佳化動作，由於這個動作利用到資料庫在唯讀的交易操作最佳化，因而必須在交易中才有效，也就是說您要搭配傳播行為 PROPAGATION_REQUIRED、PROPAGATION_REQUIRES_NEW、 PROPAGATION_NESTED來設置。
+如果交易只進行讀取的動作，則可以利用底層資料庫在唯讀操 作時的一些最佳化動作，由於這個動作利用到資料庫在唯讀的交易操作最佳化，因而必須在交易中才有效，也就是說您要搭配傳播行為 PROPAGATION_REQUIRED、PROPAGATION_REQUIRES_NEW、 PROPAGATION_NESTED 來設置。
 
 * 交易超時期間（The transaction timeout period）
 有的交易操作可能延續一段很長的時間，交易本身可能關聯到資料表格的鎖定，因而長時間的交易操作會有效能上的問題，對於過長的交易操作，您要考慮回滾（Roll back）交易並要求重新操作，而不是無限時的等待交易完成。
 
-可以設置交易超時期間，計時是從交易開始時，所以這個設置必須搭配傳播行為PROPAGATION_REQUIRED、PROPAGATION_REQUIRES_NEW、PROPAGATION_NESTED來設置。
+可以設置交易超時期間，計時是從交易開始時，所以這個設置必須搭配傳播行為 PROPAGATION_REQUIRED、PROPAGATION_REQUIRES_NEW、PROPAGATION_NESTED 來設置。
 
 Retrieved from https://openhome.cc/Gossip/SpringGossip/TransactionAttribute.html
 
