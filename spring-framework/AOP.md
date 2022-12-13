@@ -25,7 +25,7 @@ AOP 的底層使用動態代理，有兩種情況代理
 2. 沒有介面的情況，CGLIB 動態代理(基於繼承)
     * 對代理的目標類別創建子類別，透過繼承實現 AOP
 
-### **JDK動態代理**
+### **JDK 動態代理**
 使用Proxy類別裡的方法建立代理物件 (java.lang.reflect.Proxy)
 * 呼叫 newProxyInstance 方法，內有三個參數
     * ClassLoader loader: 類別加載器
@@ -112,7 +112,7 @@ AOP 名詞解釋：
 * AOP 著重在 Cross-cutting concerns(又稱 Advice)的實作，以及將 Aspect 縫合(Weave)到企業邏輯流程的時機
 * JoinPoint: 在企業邏輯流程中程式執行的某個時間點，例如：某個方法被呼叫、某個 Exception 被丟出
 * Advice: 要在某個 JoinPoint 執行的程式碼，就是純粹系統運作考量程式邏輯(Cross-cutting concerns)的程式碼
-* PointCut: Advice 要在哪些時間點執行的相關設定，例如：在1個類別的所有方法執行之前執行
+* PointCut: Advice 要在哪些時間點執行的相關設定，例如：在 1 個類別的所有方法執行之前執行
 * Weave: Advice 被應用至物件之上的過程稱之為縫合（Weave），在 AOP 中縫合的方式有幾個時間點：編譯時期（Compile time）、類別載入時期（Classload time）、執行時期（Runtime）。
 * Aspect: Advice(程式) + PointCut(設定)，表示在應用程式的某些時間點要執行的動作
 
