@@ -5,9 +5,9 @@
 * [Spring 的 IoC 介面 - BeanFactory](#spring-的-ioc-介面---beanfactory)
 * [Spring 組態設定的方式](#spring組態設定的方式)
     * [xml 組態實作](#xml-組態方式實作)
-        * [FactoryBean (工廠Bean - 自定義Bean)](#ioc-操作bean管理---工廠bean-factorybean)
-        * [Bean Scope (Bean的作用域)](#ioc-操作bean管理---bean的作用域-bean-scope)
-        * [Bean Lifecycle (Bean的生命週期)](#ioc-操作bean管理---bean的生命週期-bean-lifecycle)
+        * [FactoryBean (工廠Bean - 自定義Bean)](#ioc-操作-bean-管理---工廠-bean-factorybean)
+        * [Bean Scope (Bean的作用域)](#ioc-操作-bean-管理---bean-的作用域-bean-scope)
+        * [Bean Lifecycle (Bean的生命週期)](#ioc-操作-bean-管理---bean-的生命週期-bean-lifecycle)
         * [自動裝配](#ioc-操作bean管理---自動裝配)
         * [配置外部屬性資料](#ioc-操作bean管理---配置外部屬性資料)
     * [Annotation 組態實作](#annotation-組態方式實作)
@@ -152,7 +152,7 @@ public class TestSpring {
 ---
 
 #### **Setter 方法注入 (Setter Injection) - xml**
-透過 Setter 方法參數傳入類別所需耀使用到的其他物件，通常在注入非必要屬性時使用。
+透過 Setter 方法參數傳入類別所需要使用到的其他物件，通常在注入非必要屬性時使用。
 * 完全符合單一功能原則，因為每一個 Setter 只針對一個物件
 * 無法注入一個不可變的物件 (final修飾的物件)
 * 注入的物件可能隨時被修改
@@ -282,7 +282,7 @@ public class CollectionTest {
 public class UserBean {
     private List<String> list;
 
-    public void setList(:ist<String> list) {
+    public void setList(List<String> list) {
         this.list = list;
     }
 }
